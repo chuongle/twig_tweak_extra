@@ -4,6 +4,7 @@ namespace Drupal\twig_tweak_extra\Twig;
 
 use Drupal\Core\Render\Renderer;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\views\Views;
 
 /**
  * Class TwigExtension.
@@ -19,6 +20,7 @@ class TwigExtension extends \Twig_Extension {
     return array(
       new \Twig_SimpleFunction('drupal_form', [$this, 'drupalForm']),
       new \Twig_SimpleFunction('drupal_block_plugin', [$this, 'drupalBlockPlugin']),
+      new \Twig_SimpleFunction('contextual_filter_view', [$this, 'drupalContextualFilterView']),
       new \Twig_SimpleFunction('render_image_with_attributes', [$this, 'renderImageWithAttributes']),
     );
   }
@@ -49,6 +51,24 @@ class TwigExtension extends \Twig_Extension {
     $block_manager = \Drupal::service('plugin.manager.block');
     $block = $block_manager->createInstance($block_id);
     return $block->build();
+  }
+
+  /**
+  * Render view programmatically with contextual filters
+  */
+  public function drupalContextualFilterView($view, $display, $args) {
+    $view = Views::getView($view);
+    if (!empty($view)) {
+      $view->setArguments($args);
+      $view->setDisplay($display);
+      $view->preExecute();
+      $view->execute();
+      $content = $view->buildRenderable($display, $args);
+
+      return $content;
+    }
+
+    return null;
   }
 
   /**
