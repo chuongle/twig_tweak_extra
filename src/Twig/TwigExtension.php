@@ -57,18 +57,7 @@ class TwigExtension extends \Twig_Extension {
   * Render view programmatically with contextual filters
   */
   public function drupalContextualFilterView($view, $display, $args) {
-    $view = Views::getView($view);
-    if (!empty($view)) {
-      $view->setArguments($args);
-      $view->setDisplay($display);
-      $view->preExecute();
-      $view->execute();
-      $content = $view->buildRenderable($display, $args);
-
-      return $content;
-    }
-
-    return null;
+    return views_embed_view($view, $display, $args);
   }
 
   /**
